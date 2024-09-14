@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String?
+  password String
+
+  creditToken   Int           @default(0)
+  offsetToken   Int           @default(0)
+  walletAddress String
+  transaction   Transaction[] @relation(name: "Buyer")
+  transactions  Transaction[] @relation(name: "Seller")
+  token         Token[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  buyerId     String
+  sellerId    String
+  amount      Int
+  totalTokens Int
+  sender      User     @relation(name: "Buyer", fields: [buyerId], references: [id])
+  receiver    User     @relation(name: "Seller", fields: [sellerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Token {
+  id            String   @id @default(cuid())
+  projectId     String   @unique
+  generatedbyId String
+  available     Boolean  @default(true)
+  generatedby   User     @relation(fields: [generatedbyId], references: [id])
+  createdAt     DateTime @default(now())
+}
+
+model Project {
+  id                Int       @id @default(autoincrement())
+  serialNumber      String    @unique
+  projectName       String
+  status            String
+  owner             String
+  numberOfCredits   Int
+  availableCredits  Int
+  purchasedCredits  Int
+  issuanceDate      DateTime
+  monitoringPeriod  String
+  vintage           Int
+  retirementDate    DateTime?
+  emissionReduction Boolean
+  projectType       String
+  verifier          String
+  methodology       String
+  region            String
+  history           Json
+}
