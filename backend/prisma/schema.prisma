@@ -45,6 +45,10 @@ model Token {
   id            String   @id @default(cuid())
   projectId     String   @unique
   generatedbyId String
+  country       String
+  startDate     String
+  endDate       String?
+  purpose       String
   available     Boolean  @default(true)
   generatedby   User     @relation(fields: [generatedbyId], references: [id])
   createdAt     DateTime @default(now())

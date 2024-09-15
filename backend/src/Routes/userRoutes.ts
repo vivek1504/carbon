@@ -90,7 +90,8 @@ userRouter.get('/:id', async (req, res) => {
 
 userRouter.post('/listToken', authMiddleware, async (req, res) => {
     const { user } = req.body;
-    const { projectId } = req.body;
+    // somewhat fucked up
+    const { projectId , country, startDate, purpose } = req.body;
 
     try {
         const existingToken = await prisma.token.findFirst({
@@ -129,7 +130,10 @@ userRouter.post('/listToken', authMiddleware, async (req, res) => {
         const token = await prisma.token.create({
             data: {
                 projectId,
-                generatedbyId: userdetails.id
+                generatedbyId: userdetails.id,
+                country,
+                startDate,
+                purpose
             }
         });
 

@@ -47,7 +47,7 @@ tokenRouter.put('/retire', async (req, res) => {
         const tokens = await prisma.token.findMany({
             where: {
                 available: true,
-                country: country
+                country
             }
         })
 
