@@ -24,6 +24,7 @@ model Project {
   purchasedCredits  Int
   issuanceDate      DateTime
   monitoringPeriod  String
+  price             Int
   vintage           Int
   retirementDate    DateTime?
   emissionReduction Boolean

@@ -6,7 +6,7 @@ import { PrismaClient } from "@prisma/client";
 export const projectRouter = Router();
 const prisma = new PrismaClient();
 
-projectRouter.get('/:id', authMiddleware, async (req, res) => {
+projectRouter.get('/:id', async (req, res) => {
     const projectId = req.params
     try {
         const checkingRegistry = await axios.get(`http://localhost:8080/info/${projectId}`)
