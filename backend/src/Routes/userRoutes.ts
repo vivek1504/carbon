@@ -13,7 +13,7 @@ if (!JWT_SECRET) {
 }
 
 userRouter.post('/register', async (req, res) => {
-    const { name, email, password, walletAddress } = req.body;
+    const { name, email, walletAddress } = req.body;
 
     try {
         const existingUser = await prisma.user.findUnique({
@@ -24,7 +24,7 @@ userRouter.post('/register', async (req, res) => {
             return res.status(400).json({ error: "User already exists" });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(name, 10);
 
         const user = await prisma.user.create({
             data: { name, email, password: hashedPassword, walletAddress }
@@ -143,66 +143,65 @@ userRouter.post('/listToken', authMiddleware, async (req, res) => {
 
 });
 
-userRouter.post("/buytoken", authMiddleware, async (req, res) => {
-    const { id, projectId, amount, numberOfTokens } = req.body
+// userRouter.post("/buytoken", authMiddleware, async (req, res) => {
+//     const { id, projectId, amount, numberOfTokens } = req.body
 
 
-    if (!projectId) {
-        return res.status(400).json({
-            message: "project id not found"
-        })
-    }
+//     if (!projectId) {
+//         return res.status(400).json({
+//             message: "project id not found"
+//         })
+//     }
 
-    try {
-        const isValidToken = await prisma.token.findUnique({
-            where: {
-                projectId
-            }
-        })
+//     try {
+//         const isValidToken = await prisma.token.findUnique({
+//             where: {
+//                 projectId
+//             }
+//         })
 
-        if (!isValidToken) {
-            return res.status(400).json({ message: "this is not a valid token" })
-        }
+//         if (!isValidToken) {
+//             return res.status(400).json({ message: "this is not a valid token" })
+//         }
 
-        // logic to buy the token.
-        console.log(isValidToken.generatedbyId)
+//         // logic to buy the token.
+//         console.log(isValidToken.generatedbyId)
 
-        const createTransaction = await prisma.transaction.create({
-            data: {
-                buyerId: id,
-                sellerId: isValidToken.generatedbyId,
-                amount,
-                totalTokens: numberOfTokens
+//         const createTransaction = await prisma.transaction.create({
+//             data: {
+                
+//                 amount,
+//                 totalTokens: numberOfTokens
 
-            }
-        })
+//             }
+//         })
 
-        const user = await prisma.user.findUnique({
-            where: {
-                id
-            }
-        })
+//         const user = await prisma.user.findUnique({
+//             where: {
+//                 id
+//             }
+//         })
 
-        if (!user) {
-            return res.status(400).json({ message: "not a valid user" })
-        }
-        // currently just sending tokens but need to update it in future.
-        // either store 1 credit as 1000 don't change the registry until all the tokens are purchased
-        // problem ====> if one credit is broken down into multipe tokens how will its ownership be calculated
-        const updateRegistry = await axios.put("http://localhost:8080/updateTransaction", {
-            projectId,
+//         if (!user) {
+//             return res.status(400).json({ message: "not a valid user" })
+//         }
+//         // currently just sending tokens but need to update it in future.
+//         // either store 1 credit as 1000 don't change the registry until all the tokens are purchased
+//         // problem ====> if one credit is broken down into multipe tokens how will its ownership be calculated
+//         const updateRegistry = await axios.put("http://localhost:8080/updateTransaction", {
+//             projectId,
 
-            credits: numberOfTokens
-        })
+//             credits: numberOfTokens
+//         })
 
-        if (updateRegistry.status !== 200) {
-            return res.json({ message: "unable to update the registry" })
-        }
+//         if (updateRegistry.status !== 200) {
+//             return res.json({ message: "unable to update the registry" })
+//         }
 
-        res.status(200).json({ message: "token purchased successfully" })
-    }
-    catch (error) {
-        console.log(error);
-        res.status(400).json({ message: "internal server error" })
-    }
-})
+//         res.status(200).json({ message: "token purchased successfully" })
+//     }
+//     catch (error) {
+//         console.log(error);
+//         res.status(400).json({ message: "internal server error" })
+//     }
+// })

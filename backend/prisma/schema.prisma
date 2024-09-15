@@ -14,16 +14,15 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  email    String  @unique
-  name     String?
-  password String
-
+  id            String        @id @default(cuid())
+  email         String        @unique
+  name          String?
+  password      String
   creditToken   Int           @default(0)
   offsetToken   Int           @default(0)
-  walletAddress String
-  transaction   Transaction[] @relation(name: "Buyer")
-  transactions  Transaction[] @relation(name: "Seller")
+  walletAddress String        @unique
+  transactions  Transaction[] @relation(name: "to")
+  transaction   Transaction[] @relation(name: "from")
   token         Token[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -31,12 +30,13 @@ model User {
 
 model Transaction {
   id          String   @id @default(cuid())
-  buyerId     String
-  sellerId    String
+  from        String
+  to          String
+  fromwallet  User     @relation(name: "from", fields: [from], references: [walletAddress])
+  towallet    User     @relation(name: "to", fields: [to], references: [walletAddress])
   amount      Int
+  type        Type
   totalTokens Int
-  sender      User     @relation(name: "Buyer", fields: [buyerId], references: [id])
-  receiver    User     @relation(name: "Seller", fields: [sellerId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -69,4 +69,9 @@ model Project {
   methodology       String
   region            String
   history           Json
+}
+
+enum Type {
+  trade
+  offset
 }

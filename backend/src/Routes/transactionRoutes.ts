@@ -1,11 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
+import { authMiddleware } from "../middleware/authmiddleware";
 
 export const transactionRouter = Router();
 const prisma = new PrismaClient();
-transactionRouter.post('/purchase', async (req, res) => {
+
+// route to hit buy rahul's blockchain
+transactionRouter.post('/purchase', authMiddleware, async (req, res) => {
     const { id } = req.body.user;
-    const { projectId, totalTokens, amount } = req.body;
+    const { projectId, totalTokens, amount, to, from, type } = req.body;
 
     if (!projectId || !totalTokens || !amount) {
         return res.status(400).json({ message: "projectId or amount or totalTokens not found" })
@@ -24,23 +27,16 @@ transactionRouter.post('/purchase', async (req, res) => {
 
         const createTransaction = await prisma.transaction.create({
             data: {
-                buyerId: id,
-                sellerId: isValidToken.generatedbyId,
+                to,
+                from,
                 amount,
-                totalTokens
+                totalTokens,
+                type
 
             }
         })
 
-        const user = await prisma.user.findUnique({
-            where: {
-                id
-            }
-        })
 
-        if (!user) {
-            return res.status(400).json({ message: "not a valid user" })
-        }
 
         res.status(200).json({ message: "Transaction successful" })
     }
@@ -51,17 +47,26 @@ transactionRouter.post('/purchase', async (req, res) => {
 
 })
 
-transactionRouter.get('/userTransactions', async (req, res) => {
+transactionRouter.get('/userTransactions', authMiddleware, async (req, res) => {
     const { id } = req.body.user;
     try {
+        const userDetails = await prisma.user.findUnique({
+            where: {
+                id
+            }
+        })
+
+        if (!userDetails) {
+            return res.status(400).json({ message: "cannot find the user" })
+        }
         const transactions = await prisma.transaction.findMany({
             where: {
                 OR: [
                     {
-                        buyerId: id
+                        to: userDetails.walletAddress
                     },
                     {
-                        sellerId: id
+                        from: userDetails.walletAddress
                     }
                 ]
             }

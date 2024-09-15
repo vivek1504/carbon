@@ -13,79 +13,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Credit {
-  id                   String               @id @default(cuid()) // Unique identifier for the carbon credit
-  project              Project              @relation(fields: [projectId], references: [id])
-  projectId            String
-  issuer               Issuer               @relation(fields: [issuerId], references: [id])
-  issuerId             String
-  vintageYear          Int // Year when the carbon credits were generated
-  totalCredits         Int // Total credits available
-  pricePerCredit       Float // Price per credit in USD
-  marketActivity       MarketActivity?      @relation(fields: [marketActivityId], references: [id])
-  marketActivityId     String?
-  verificationStandard VerificationStandard // Enum to represent Verra, Gold Standard, etc.
-  status               CreditStatus // Enum representing Available, Retired, etc.
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-}
-
-model Project {
-  id          String      @id @default(cuid()) // Unique identifier for the project
-  name        String // Name of the project
-  projectType ProjectType // Enum: e.g., Afforestation, Renewable Energy
-  location    Location    @relation(fields: [locationId], references: [id])
-  locationId  String
-  methodology String // Methodology used (e.g., ACM0002, VM0014)
-  coBenefits  String[] // Additional benefits (array of strings)
-  credits     Credit[] // One-to-many relation with credits
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-}
-
-model Issuer {
-  id            String   @id @default(cuid()) // Unique identifier for the issuer
-  name          String // Name of the issuer (e.g., EcoProjects Ltd)
-  creditsIssued Credit[] // One-to-many relation with credits
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model MarketActivity {
-  id              String   @id @default(cuid()) // Unique identifier for market activity
-  lastTradeDate   DateTime // Date of the last trade
-  lastTradeVolume Int // Volume of the last trade
-  totalTrades     Int // Total number of trades
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  Credit Credit[]
-}
-
-model Location {
-  id        String    @id @default(cuid()) // Unique identifier for location
-  country   String // Country of the project (e.g., Indonesia)
-  region    String // Region (e.g., West Kalimantan)
-  projects  Project[] // One-to-many relation with projects
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
-
-enum ProjectType {
-  AFFORESTATION
-  RENEWABLE_ENERGY
-  WASTE_MANAGEMENT
-  OTHER
-}
-
-enum VerificationStandard {
-  VERRA
-  GOLD_STANDARD
-  OTHER
-}
-
-enum CreditStatus {
-  AVAILABLE
-  RETIRED
-  PENDING
+model CarbonMark {
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  asset          String
+  price          Float
+  wallet         String
+  availableToken Int
+  vintage        Int
+  status         String
 }
